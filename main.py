@@ -47,7 +47,6 @@ def train_loop_ddqn(model, env, num_episodes, batch_size=64, gamma=.94):
     for i in range(num_episodes):
         state = env.reset()  # reset to initial state
         state = np.expand_dims(state, axis=0) / 2
-        state = state[0][0:-1].reshape(1, 3)
         terminal = False  # reset terminal flag
         ep_reward = 0
         q_buffer = []
@@ -61,7 +60,6 @@ def train_loop_ddqn(model, env, num_episodes, batch_size=64, gamma=.94):
             action = np.random.choice(num_actions, p=policy)  # sample action from epsilon-greedy policy
             new_state, reward, terminal, _ = env.step(action)  # take one step in the evironment
             new_state = np.expand_dims(new_state, axis=0) / 2
-            new_state = new_state[0][0:-1].reshape(1, 3)
 
             # only use the terminal flag for ending the episode and not for training
             # if the flag is set due to that the maximum amount of steps is reached 
