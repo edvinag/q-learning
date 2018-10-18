@@ -95,7 +95,7 @@ env = gym.make("CartPole-v0")
 
 # Initializations
 num_actions = env.action_space.n
-obs_dim = env.observation_space.shape[0] - 1
+obs_dim = env.observation_space.shape[0]
 
 # Our Neural Netork model used to estimate the Q-values
 model = DoubleQLearningModel(state_dim=obs_dim, action_dim=num_actions, learning_rate=1e-4)
