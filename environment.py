@@ -8,6 +8,7 @@ class Agent:
         self.x_position = x_position
         self.y_position = y_position
         self.size = size
+        self.active_room = 1
 
     def move_x(self, direction):
         if direction == 1:
@@ -19,6 +20,14 @@ class Agent:
             self.x_position -= self.size
             if self._detect_collision():
                 self.x_position += self.size
+
+        # Update active room based on the x position
+        if self.x_position < 200:
+            self.active_room = 1
+        elif self.x_position >= 400:
+            self.active_room = 3
+        else:
+            self.active_room = 2
 
     def move_y(self, direction):
         if direction == -1:
@@ -110,6 +119,13 @@ class Environment:
         pygame.draw.rect(self._display_surf, room_color, room3)
 
         self.agent.draw(self._display_surf)
+
+        font = pygame.font.SysFont(None, 28)
+        msg = 'R%d, (%d, %d)' % (self.agent.active_room,
+                                 self.agent.x_position,
+                                 self.agent.y_position)
+        text = font.render(msg, True, (255, 0, 0), (0, 0, 0))
+        self._display_surf.blit(text, (450, 300))
         pygame.display.flip()
 
     def cleanup(self):
