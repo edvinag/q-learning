@@ -4,6 +4,7 @@ import gym
 from keras.utils.np_utils import to_categorical as one_hot
 from collections import namedtuple
 from dqn_model import DoubleQLearningModel, ExperienceReplay
+from environment import Environment
 
 
 def eps_greedy_policy(q_values, eps):
@@ -91,7 +92,8 @@ def train_loop_ddqn(model, env, num_episodes, batch_size=64, gamma=.94):
 
 
 # Create the environment
-env = gym.make("CartPole-v0")
+#env = gym.make("CartPole-v0")
+env = Environment(20, 600, 360)
 
 # Initializations
 num_actions = env.action_space.n

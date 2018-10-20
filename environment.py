@@ -1,7 +1,8 @@
 from pygame.locals import *
 import pygame
 import time
-
+import numpy as np
+import random as rnd
 
 class Agent:
     def __init__(self, x_position=0, y_position=0, size=20):
@@ -83,7 +84,18 @@ class Agent:
         pygame.draw.rect(surface, color, rect)
 
 
+class Action_Space:
+    def __init__(self):
+        self.n = 4
+
+
+class Observation_Space:
+    def __init__(self):
+        self.shape = [4]
+
 class Environment:
+
+
     def __init__(self, size=20, width=800, height=600):
         self._running = True
         self.size = size
@@ -91,6 +103,10 @@ class Environment:
         self._display_surf = None
         self.window_width = width
         self.window_height = height
+        self.desired_room = 2
+        self.action_space = Action_Space()
+        self.observation_space = Observation_Space()
+        self.steps = 0
 
     def init(self):
         pygame.init()
@@ -105,6 +121,15 @@ class Environment:
         # based on the input action, i.e. call move_x or move_y
         #
         # The function should return x and y of the agent
+        if action == 0:
+            self.agent.move_y(1)
+        elif action == 1:
+            self.agent.move_y(-1)
+        elif action == 2:
+            self.agent.move_x(1)
+        elif action == 3:
+            self.agent.move_x(-1)
+
         return self.agent.x_position, self.agent.y_position
 
     def render(self):
@@ -131,6 +156,31 @@ class Environment:
     def cleanup(self):
         pygame.quit()
 
+    def make(self):
+        if self.init() == False:
+            self._running = False
+
+    def reset(self):
+        self.init()
+        self.steps = 0
+        x, y = self.update(-1)
+        return np.array([x, y, self.agent.active_room, self.desired_room])
+
+    def step(self, action):
+        self.steps = self.steps + 1
+        new_x, new_y = self.update(action)
+        new_state = np.array([new_x, new_y, self.agent.active_room, self.desired_room])
+        if self.desired_room == self.agent.active_room:
+            reward = 1
+            if rnd.random() > 0.98:
+                self.desired_room = rnd.randint(1, 3)
+                print('New room!!!')
+        else:
+            reward = -1
+
+        return new_state, reward, (self.steps==200), None
+
+
     def execute(self):
         if self.init() == False:
             self._running = False
@@ -143,17 +193,17 @@ class Environment:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
-                        self.agent.move_x(1)
+                        self.update(2)
                     if event.key == pygame.K_LEFT:
-                        self.agent.move_x(-1)
+                        self.update(3)
                     if event.key == pygame.K_DOWN:
-                        self.agent.move_y(1)
+                        self.update(0)
                     if event.key == pygame.K_UP:
-                        self.agent.move_y(-1)
+                        self.update(1)
                     if event.key == pygame.K_ESCAPE:
                         self._running = False
 
-            new_x, new_y = self.update(1)
+            new_x, new_y = self.update(-1)
             self.render()
 
             time.sleep(50.0 / 1000.0)
