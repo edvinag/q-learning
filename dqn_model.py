@@ -6,7 +6,7 @@ from keras.models import Model
 import numpy as np
 from collections import deque
 from keras.utils.np_utils import to_categorical
-
+from keras.models import load_model
 
 class ExperienceReplay:
 
@@ -57,6 +57,14 @@ class DoubleQLearningModel(object):
         self._offline_model = self.__build_model()
         # define ops for updating the networks
         self._update = self.__mse()
+
+    def save_model(self):
+        self._online_model.save('models/_online_model2.h5')
+        self._offline_model.save('models/_offline_model2.h5')
+
+    def load(self):
+        self._online_model = load_model('models/_online_model2.h5')
+        self._offline_model = load_model('models/_offline_model2.h5')
 
     def __build_model(self):
         '''
