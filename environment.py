@@ -3,6 +3,7 @@ import pygame
 import time
 import numpy as np
 import random as rnd
+import math
 
 class Agent:
     def __init__(self, x_position=0, y_position=0, size=20):
@@ -10,6 +11,8 @@ class Agent:
         self.y_position = y_position
         self.size = size
         self.active_room = 1
+
+
 
     def move_x(self, direction):
         if direction == 1:
