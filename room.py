@@ -121,7 +121,7 @@ class Population(pygame.sprite.Sprite):
 
 class ObservationSpace:
     def __init__(self):
-        self.shape = np.array([3])
+        self.shape = [3]
 
 
 class ActionSpace:
@@ -146,6 +146,7 @@ class Room:
         self._running = True
 
     def setup(self):
+        #TODO no obstacle on Agent or Goal
         size = self.size
         self.agent = Agent()
         self.goal_pop = Population("goal", (10, 10), (40, 300))
@@ -173,17 +174,19 @@ class Room:
     def reset(self):
         #self.cleanup()
         self.setup()
-        return self.step([0, 0])
+        new_state, _, _, _ = self.step([0, 0])
+        return new_state
 
     def render(self):
         pass
 
     def step(self, action):
         pygame.event.pump()
+        action = [0, 0] #TODO int as action remove
         terminal = self.agent.move_bm(action, self.obstacles, self.goal)
         self._render()
         new_state = pygame.surfarray.array2d
-        return np.array([0, 0, 0]), self.reward(), terminal
+        return np.array([0, 0, 0]), self.reward(), terminal, None
 
     def _render(self):
         # Render background
