@@ -146,15 +146,20 @@ class Room:
         self._running = True
 
     def setup(self):
-        #TODO no obstacle on Agent or Goal
         size = self.size
         self.agent = Agent()
-        self.goal_pop = Population("goal", (10, 10), (40, 300))
+        self.goal_pop = None
+        while self.goal_pop is None or self.agent.pop.rect.colliderect(self.goal_pop.rect) != 0:
+            self.goal_pop = Population("goal", (10, 10), np.random.randint(size[0], size=(1, 2))[0])
         self.goal = pygame.sprite.Group()
         self.goal.add(self.goal_pop)
         self.obstacles = pygame.sprite.Group()
-        for obs in np.random.randint(400, size=(4, 3)):
-            obstacle = Population("obstacle", (obs[2] / 10, obs[2] / 10), (obs[0], obs[1]))
+        for obs in np.random.randint(size[0], size=(20, 3)):
+            obstacle = None
+            while obstacle is None or \
+                    (self.agent.pop.rect.colliderect(obstacle.rect) != 0 and
+                     self.goal_pop.rect.colliderect(obstacle.rect) != 0):
+                obstacle = Population("obstacle", (obs[2] / 10, obs[2] / 10), (obs[0], obs[1]))
             self.obstacles.add(obstacle)
 
         left_wall = Population("obstacle", (10, size[1]), (0, size[1] / 2))
