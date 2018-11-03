@@ -205,6 +205,7 @@ class Room:
     def execute(self):
         steer_wheel_angle = 0
         acceleration = 0
+        self.setup()
         while self._running:
             pygame.event.pump()
             for event in pygame.event.get():
