@@ -6,13 +6,6 @@ import random as rnd
 from enum import Enum
 import math
 
-class Action(Enum):
-    Up = 0
-    Down = 1
-    Right = 2
-    Left = 3
-
-
 class Agent:
     def __init__(self):
         self.x = 200
@@ -60,25 +53,6 @@ class Agent:
             goal_reached = True
 
         return goal_reached
-
-    def move(self, action, obstacles):
-        old_x = self.x
-        old_y = self.y
-
-        if action == Action.Up:
-            self.y -= 1
-        elif action == Action.Down:
-            self.y += 1
-        elif action == Action.Right:
-            self.x += 1
-        elif action == Action.Left:
-            self.x -= 1
-
-        self.set_pos()
-        if self.rect.collidelistall(obstacles):
-            self.x = old_x
-            self.y = old_y
-            self.set_pos()
 
     def set_pos(self):
         self.pop.image = pygame.transform.rotate(self.pop.image_original, -math.degrees(self.yaw))
