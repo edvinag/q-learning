@@ -19,8 +19,9 @@ class Agent:
         self.length_front = self.length/2
         self.sampleTime = 0.1
         self.yaw = 0
+        self.velocity = 0
 
-    def move_bm(self, steer_wheel_angle, velocity, obstacles, goal):
+    def move_bm(self, steer_wheel_angle, acceleration, obstacles, goal):
         # Bicycle model
         # Input to movement is steering wheel angle and the velocity of the vehicle.
         # yaw: Vehicle angle in global coordinate system.
@@ -33,12 +34,22 @@ class Agent:
         old_yaw = self.yaw
         old_x = self.x
         old_y = self.y
+        old_velocity = self.velocity
+
+        # Truncate steer wheel angle at a certain degree
+        truncate_value = 30
+        steer_wheel_angle = math.radians(max(-truncate_value, min(truncate_value, steer_wheel_angle)))
 
         # Update states
         velocity_angle = math.atan(self.length_rear * math.tan(steer_wheel_angle)/(self.length_rear + self.length_front))
-        self.x = old_x + self.sampleTime * velocity * math.cos(velocity_angle + old_yaw)
-        self.y = old_y + self.sampleTime * velocity * math.sin(velocity_angle + old_yaw)
-        self.yaw = old_yaw + (self.sampleTime * velocity * math.sin(velocity_angle)/self.length_rear)
+        self.x = old_x + self.sampleTime * old_velocity * math.cos(velocity_angle + old_yaw)
+        self.y = old_y + self.sampleTime * old_velocity * math.sin(velocity_angle + old_yaw)
+        self.yaw = old_yaw + (self.sampleTime * old_velocity * math.sin(velocity_angle)/self.length_rear)
+        self.velocity = old_velocity + self.sampleTime * acceleration
+
+        # Truncate steer wheel angle at a certain degree
+        truncate_value = 30
+        self.velocity = max(-truncate_value, min(truncate_value, self.velocity))
 
         self.set_pos()
         # Move vehicle to new states and check for collision, if collision, then use old states.
@@ -153,7 +164,7 @@ class Room:
 
     def execute(self):
         steer_wheel_angle = 0
-        velocity = 0
+        acceleration = 0
         while(self._running):
             pygame.event.pump()
             for event in pygame.event.get():
@@ -166,16 +177,13 @@ class Room:
                     if event.key == pygame.K_LEFT:
                         steer_wheel_angle -= 10
                     if event.key == pygame.K_DOWN:
-                        velocity -= 30
+                        acceleration -= 1
                     if event.key == pygame.K_UP:
-                        velocity += 30
+                        acceleration += 1
                     if event.key == pygame.K_ESCAPE:
                         self._running = False
 
-                # Truncate angle at a certain degree
-                truncate_value = 60
-                steer_wheel_angle = max(-truncate_value, min(truncate_value, steer_wheel_angle))
-            goal_reached = self.agent.move_bm(math.radians(steer_wheel_angle), velocity, self.obstacles, self.goal)
+            goal_reached = self.agent.move_bm(steer_wheel_angle, acceleration, self.obstacles, self.goal)
             if goal_reached:
                 print("Goal is reached!")
 
