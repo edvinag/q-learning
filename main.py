@@ -4,7 +4,8 @@ import gym
 from keras.utils.np_utils import to_categorical as one_hot
 from collections import namedtuple
 from dqn_model import DoubleQLearningModel, ExperienceReplay
-from environment import Environment
+#from environment import Environment
+from room import Room
 
 
 def eps_greedy_policy(q_values, eps):
@@ -93,13 +94,14 @@ def train_loop_ddqn(model, env, num_episodes, batch_size=64, gamma=.94):
 
 # Create the environment
 #env = gym.make("CartPole-v0")
-env = Environment(20, 600, 360)
+#env = Environment(20, 600, 360)
+env = Room()
 
 # Initializations
 num_actions = env.action_space.n
 obs_dim = env.observation_space.shape[0]
 
-# Our Neural Netork model used to estimate the Q-values
+# Our Neural Network model used to estimate the Q-values
 model = DoubleQLearningModel(state_dim=obs_dim, action_dim=num_actions, learning_rate=1e-4)
 
 # Create replay buffer, where experience in form of tuples <s,a,r,s',t>, gathered from the environment is stored

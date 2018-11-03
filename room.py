@@ -121,7 +121,7 @@ class Population(pygame.sprite.Sprite):
 
 class ObservationSpace:
     def __init__(self):
-        self.shape = [0, 0]
+        self.shape = np.array([3])
 
 
 class ActionSpace:
@@ -131,20 +131,32 @@ class ActionSpace:
 
 class Room:
     def __init__(self, size=(400, 400)):
+        self.agent = None
+        self.goal_pop = None
+        self.goal = None
+        self.action_space = ActionSpace()
+        self.observation_space = ObservationSpace()
+        self.obstacles = None
+        self.size = size
+
+        pygame.init()
+        self._display_surf = pygame.display.set_mode(
+            (self.size[0], self.size[1]), pygame.HWSURFACE)
+        pygame.display.set_caption('The agents environment')
+        self._running = True
+
+    def setup(self):
+        size = self.size
         self.agent = Agent()
         self.goal_pop = Population("goal", (10, 10), (40, 300))
         self.goal = pygame.sprite.Group()
         self.goal.add(self.goal_pop)
-        self.action_space = ActionSpace()
-        self.observation_space = ObservationSpace()
-
-        self.size = size
         self.obstacles = pygame.sprite.Group()
         for obs in np.random.randint(400, size=(4, 3)):
-            obstacle = Population("obstacle", (obs[2]/10, obs[2]/10), (obs[0], obs[1]))
+            obstacle = Population("obstacle", (obs[2] / 10, obs[2] / 10), (obs[0], obs[1]))
             self.obstacles.add(obstacle)
 
-        left_wall = Population("obstacle", (10, size[1]), (0, size[1]/2))
+        left_wall = Population("obstacle", (10, size[1]), (0, size[1] / 2))
         self.obstacles.add(left_wall)
         right_wall = Population("obstacle", (10, size[1]), (size[1], size[1] / 2))
         self.obstacles.add(right_wall)
@@ -153,19 +165,15 @@ class Room:
         bottom_wall = Population("obstacle", (size[0], 10), (size[0] / 2, size[0]))
         self.obstacles.add(bottom_wall)
 
-        pygame.init()
-        self._display_surf = pygame.display.set_mode(
-            (self.size[0], self.size[1]), pygame.HWSURFACE)
-        pygame.display.set_caption('The agents environment')
-        self._running = True
-
     def reward(self):
         x1, y1 = self.agent.x, self.agent.y
         x2, y2 = self.goal_pop.rect.center[0], self.goal_pop.rect.center[1]
         return - math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
     def reset(self):
-        self.cleanup()
+        #self.cleanup()
+        self.setup()
+        return self.step([0, 0])
 
     def render(self):
         pass
@@ -175,7 +183,7 @@ class Room:
         terminal = self.agent.move_bm(action, self.obstacles, self.goal)
         self._render()
         new_state = pygame.surfarray.array2d
-        return new_state, self.reward(), terminal
+        return np.array([0, 0, 0]), self.reward(), terminal
 
     def _render(self):
         # Render background
