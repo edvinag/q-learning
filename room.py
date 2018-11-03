@@ -21,7 +21,7 @@ class Agent:
         self.yaw = 0
         self.velocity = 0
 
-    def move_bm(self, steer_wheel_angle, acceleration, obstacles, goal):
+    def move_bm(self, actions, obstacles, goal):
         # Bicycle model
         # Input to movement is steering wheel angle and the velocity of the vehicle.
         # yaw: Vehicle angle in global coordinate system.
@@ -29,6 +29,10 @@ class Agent:
         # x and y: Position in global coordinate system
         # length_rear: length between COG and rear axle
         # length_front: length between COG and front axle
+
+        # Populate angles
+        steer_wheel_angle = actions[0]
+        acceleration = actions[1]
 
         # Save old value with old_ prefix of state variable
         old_yaw = self.yaw
@@ -168,7 +172,7 @@ class Room:
 
     def step(self, action):
         pygame.event.pump()
-        terminal = False #self.agent.move_bm(???)
+        terminal = self.agent.move_bm(action, self.obstacles, self.goal)
         self._render()
         new_state = pygame.surfarray.array2d
         return new_state, self.reward(), terminal
@@ -211,7 +215,8 @@ class Room:
                     if event.key == pygame.K_ESCAPE:
                         self._running = False
 
-            goal_reached = self.agent.move_bm(steer_wheel_angle, acceleration, self.obstacles, self.goal)
+            actions = [steer_wheel_angle, acceleration]
+            goal_reached = self.agent.move_bm(actions, self.obstacles, self.goal)
             if goal_reached:
                 print("Goal is reached!")
 
