@@ -115,12 +115,24 @@ class Population(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
 
+class ObservationSpace:
+    def __init__(self):
+        self.shape = [0, 0]
+
+
+class ActionSpace:
+    def __init__(self):
+        self.n = 2
+
+
 class Room:
     def __init__(self, size=(400, 400)):
         self.agent = Agent()
-        goal = Population("goal", (10, 10), (40, 300))
+        self.goal_pop = Population("goal", (10, 10), (40, 300))
         self.goal = pygame.sprite.Group()
-        self.goal.add(goal)
+        self.goal.add(self.goal_pop)
+        self.action_space = ActionSpace()
+        self.observation_space = ObservationSpace()
 
         self.size = size
         self.obstacles = pygame.sprite.Group()
@@ -128,15 +140,14 @@ class Room:
             obstacle = Population("obstacle", (obs[2]/10, obs[2]/10), (obs[0], obs[1]))
             self.obstacles.add(obstacle)
 
-        leftWall = Population("obstacle", (10, size[1]), (0, size[1]/2))
-        self.obstacles.add(leftWall)
-        rightWall = Population("obstacle", (10, size[1]), (size[1], size[1] / 2))
-        self.obstacles.add(rightWall)
-        topWall = Population("obstacle", (size[0], 10), (size[0] / 2, 0))
-        self.obstacles.add(topWall)
-        bottomWall = Population("obstacle", (size[0], 10), (size[0] / 2, size[0]))
-        self.obstacles.add(bottomWall)
-
+        left_wall = Population("obstacle", (10, size[1]), (0, size[1]/2))
+        self.obstacles.add(left_wall)
+        right_wall = Population("obstacle", (10, size[1]), (size[1], size[1] / 2))
+        self.obstacles.add(right_wall)
+        top_wall = Population("obstacle", (size[0], 10), (size[0] / 2, 0))
+        self.obstacles.add(top_wall)
+        bottom_wall = Population("obstacle", (size[0], 10), (size[0] / 2, size[0]))
+        self.obstacles.add(bottom_wall)
 
         pygame.init()
         self._display_surf = pygame.display.set_mode(
@@ -144,7 +155,25 @@ class Room:
         pygame.display.set_caption('The agents environment')
         self._running = True
 
+    def reward(self):
+        x1, y1 = self.agent.x, self.agent.y
+        x2, y2 = self.goal_pop.rect.center[0], self.goal_pop.rect.center[1]
+        return - math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+    def reset(self):
+        self.cleanup()
+
     def render(self):
+        pass
+
+    def step(self, action):
+        pygame.event.pump()
+        terminal = False #self.agent.move_bm(???)
+        self._render()
+        new_state = pygame.surfarray.array2d
+        return new_state, self.reward(), terminal
+
+    def _render(self):
         # Render background
         self._display_surf.fill((0, 0, 0))
 
@@ -158,14 +187,13 @@ class Room:
         self._display_surf.blit(self.agent.pop.image, self.agent.pop.rect)
         pygame.display.flip()
 
-
     def cleanup(self):
         pygame.quit()
 
     def execute(self):
         steer_wheel_angle = 0
         acceleration = 0
-        while(self._running):
+        while self._running:
             pygame.event.pump()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -187,7 +215,7 @@ class Room:
             if goal_reached:
                 print("Goal is reached!")
 
-            self.render()
+            self._render()
 
             time.sleep(50.0 / 1000.0)
 
