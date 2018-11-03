@@ -143,12 +143,21 @@ class Room:
             obstacle = Population("obstacle", (obs[2]/10, obs[2]/10), (obs[0], obs[1]))
             self.obstacles.add(obstacle)
 
+        leftWall = Population("obstacle", (10, size[1]), (0, size[1]/2))
+        self.obstacles.add(leftWall)
+        rightWall = Population("obstacle", (10, size[1]), (size[1], size[1] / 2))
+        self.obstacles.add(rightWall)
+        topWall = Population("obstacle", (size[0], 10), (size[0] / 2, 0))
+        self.obstacles.add(topWall)
+        bottomWall = Population("obstacle", (size[0], 10), (size[0] / 2, size[0]))
+        self.obstacles.add(bottomWall)
+
+
         pygame.init()
         self._display_surf = pygame.display.set_mode(
             (self.size[0], self.size[1]), pygame.HWSURFACE)
         pygame.display.set_caption('The agents environment')
         self._running = True
-
 
     def render(self):
         # Render background
@@ -163,6 +172,7 @@ class Room:
         # Render agent
         self._display_surf.blit(self.agent.pop.image, self.agent.pop.rect)
         pygame.display.flip()
+
 
     def cleanup(self):
         pygame.quit()
