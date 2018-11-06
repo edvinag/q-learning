@@ -7,6 +7,11 @@ import numpy as np
 from collections import deque
 from keras.utils.np_utils import to_categorical
 from keras.models import load_model
+from keras.models import Sequential, load_model
+from keras.layers import Dense, Flatten
+from keras.layers.convolutional import Conv2D, MaxPooling2D
+from keras.models import Model
+
 
 class ExperienceReplay:
 
@@ -32,11 +37,11 @@ class ExperienceReplay:
         :return:
         '''
         ids = np.random.choice(a=self.buffer_length, size=batch_size)
-        state_batch = np.zeros([batch_size, self._state_size])
+        state_batch = np.zeros([batch_size] + list(self._state_size)) #TODO Handle single values
         action_batch = np.zeros([batch_size, 1])
         reward_batch = np.zeros([batch_size, 1])
         t_batch = np.zeros([batch_size, 1])
-        next_state_batch = np.zeros([batch_size, self._state_size])
+        next_state_batch = np.zeros([batch_size] + list(self._state_size)) #TODO Handle single values
         for i, index in zip(range(batch_size), ids):
             state_batch[i] = self.__buffer[index].s
             action_batch[i] = self.__buffer[index].a
@@ -71,13 +76,12 @@ class DoubleQLearningModel(object):
         Define all the layers in the network
         :return: Keras model
         '''
-        x = Input(shape=(self._state_dim,))
-        fc1 = Dense(100, activation='relu', kernel_initializer='VarianceScaling', input_dim=self._state_dim)(x)
-        fc2 = Dense(60, activation='relu', kernel_initializer='VarianceScaling')(fc1)
-        Q_initializer = RandomUniform(minval=-1e-6, maxval=1e-6, seed=None)
-        q_value = Dense(self._action_dim, kernel_initializer=Q_initializer)(fc2)
-        model = Model(inputs=x, outputs=q_value)
-
+        model = Sequential()
+        model.add(Conv2D(16, (5, 5), activation='relu', input_shape=self._state_dim))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Flatten())
+        model.add(Dense(16, activation='relu'))
+        model.add(Dense(2, activation='linear'))
         return model
 
     def __mse(self):
@@ -104,6 +108,7 @@ class DoubleQLearningModel(object):
         :param states: set of states
         :return: Q-values for online network, Q-values for offline network
         '''
+        states = states.reshape((128, 400, 400, 1)) #TODO Remove constant values
         return self._online_model.predict(states), self._offline_model.predict(states)
 
     def get_q_values(self, state):

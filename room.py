@@ -136,6 +136,7 @@ class Room:
         self.goal = None
         self.action_space = ActionSpace()
         self.observation_space = ObservationSpace()
+        self.observation_space.shape = [(400, 400, 1)]
         self.obstacles = None
         self.size = size
 
@@ -190,8 +191,8 @@ class Room:
         action = [0, 0] #TODO int as action remove
         terminal = self.agent.move_bm(action, self.obstacles, self.goal)
         self._render()
-        new_state = pygame.surfarray.array2d
-        return np.array([0, 0, 0]), self.reward(), terminal, None
+        image_state = pygame.surfarray.array2d(self._display_surf).reshape((400,400,1))
+        return image_state, self.reward(), terminal, None
 
     def _render(self):
         # Render background
