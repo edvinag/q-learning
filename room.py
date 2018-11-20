@@ -126,7 +126,7 @@ class ObservationSpace:
 
 class ActionSpace:
     def __init__(self):
-        self.n = 2
+        self.n = 6
 
 
 class Room:
@@ -139,6 +139,8 @@ class Room:
         self.observation_space.shape = [(400, 400, 1)]
         self.obstacles = None
         self.size = size
+
+        self.action = [0, 0]
 
         pygame.init()
         self._display_surf = pygame.display.set_mode(
@@ -186,10 +188,25 @@ class Room:
     def render(self):
         pass
 
-    def step(self, action):
+    def step(self, action_index):
         pygame.event.pump()
-        action = [0, 0] #TODO int as action remove
-        terminal = self.agent.move_bm(action, self.obstacles, self.goal)
+
+        # Index 0-2 concerns steer wheel angle.
+        # Index 3-5 concerns acceleration.
+        if action_index == 0:
+            self.action[0] = 0
+        elif action_index == 1:
+            self.action[0] = 45
+        elif action_index == 2:
+            self.action[0] = -45
+        elif action_index == 3:
+            self.action[1] = 0
+        elif action_index == 4:
+            self.action[1] = 1
+        elif action_index == 5:
+            self.action[1] = -1
+
+        terminal = self.agent.move_bm(self.action, self.obstacles, self.goal)
         self._render()
         image_state = pygame.surfarray.array2d(self._display_surf).reshape((400,400,1))
         return image_state, self.reward(), terminal, None
@@ -223,18 +240,21 @@ class Room:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
-                        steer_wheel_angle += 10
+                        self.action[0] = 45
                     if event.key == pygame.K_LEFT:
-                        steer_wheel_angle -= 10
+                        self.action[0] = -45
+                    if event.key == pygame.K_f:
+                        self.action[0] = 0
                     if event.key == pygame.K_DOWN:
-                        acceleration -= 1
+                        self.action[1] = -1
                     if event.key == pygame.K_UP:
-                        acceleration += 1
+                        self.action[1] = 1
+                    if event.key == pygame.K_n:
+                        self.action[1] = 0
                     if event.key == pygame.K_ESCAPE:
                         self._running = False
 
-            actions = [steer_wheel_angle, acceleration]
-            goal_reached = self.agent.move_bm(actions, self.obstacles, self.goal)
+            goal_reached = self.agent.move_bm(self.action, self.obstacles, self.goal)
             if goal_reached:
                 print("Goal is reached!")
 
