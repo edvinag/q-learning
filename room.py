@@ -191,6 +191,8 @@ class Room:
     def step(self, action_index):
         pygame.event.pump()
 
+        # Index 0-2 concerns steer wheel angle.
+        # Index 3-5 concerns acceleration.
         if action_index == 0:
             self.action[0] = 0
         elif action_index == 1:
