@@ -182,7 +182,7 @@ class Room:
     def reset(self):
         #self.cleanup()
         self.setup()
-        new_state, _, _, _ = self.step([0, 0])
+        new_state, _, _, _ = self.step(0)
         return new_state
 
     def render(self):

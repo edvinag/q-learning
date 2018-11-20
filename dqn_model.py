@@ -81,7 +81,7 @@ class DoubleQLearningModel(object):
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Flatten())
         model.add(Dense(16, activation='relu'))
-        model.add(Dense(2, activation='linear'))
+        model.add(Dense(1, activation='linear'))
         return model
 
     def __mse(self):
