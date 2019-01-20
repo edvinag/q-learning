@@ -51,8 +51,8 @@ class Agent:
         self.yaw = old_yaw + (self.sampleTime * old_velocity * math.sin(velocity_angle)/self.length_rear)
         self.velocity = old_velocity + self.sampleTime * acceleration
 
-        # Truncate steer wheel angle at a certain degree
-        truncate_value = 30
+        # Truncate velocity
+        truncate_value = 50
         self.velocity = max(-truncate_value, min(truncate_value, self.velocity))
 
         self.set_pos()
@@ -202,9 +202,9 @@ class Room:
         elif action_index == 3:
             self.action[1] = 0
         elif action_index == 4:
-            self.action[1] = 1
+            self.action[1] = 20
         elif action_index == 5:
-            self.action[1] = -1
+            self.action[1] = -20
 
         terminal = self.agent.move_bm(self.action, self.obstacles, self.goal)
         self._render()
@@ -246,9 +246,9 @@ class Room:
                     if event.key == pygame.K_f:
                         self.action[0] = 0
                     if event.key == pygame.K_DOWN:
-                        self.action[1] = -1
+                        self.action[1] = -20
                     if event.key == pygame.K_UP:
-                        self.action[1] = 1
+                        self.action[1] = 20
                     if event.key == pygame.K_n:
                         self.action[1] = 0
                     if event.key == pygame.K_ESCAPE:
