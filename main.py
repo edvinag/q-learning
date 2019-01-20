@@ -6,7 +6,7 @@ from collections import namedtuple
 from dqn_model import DoubleQLearningModel, ExperienceReplay
 #from environment import Environment
 from room import Room
-
+from datetime import datetime
 
 def eps_greedy_policy(q_values, eps):
     '''
@@ -46,6 +46,8 @@ def train_loop_ddqn(model, env, num_episodes, batch_size=64, gamma=.94):
     eps_decay = .001
     R_buffer = []
     R_avg = []
+    starttime = datetime.now()
+
     for i in range(num_episodes):
         state = env.reset()  # reset to initial state
         state = np.expand_dims(state, axis=0) / 2
@@ -71,6 +73,13 @@ def train_loop_ddqn(model, env, num_episodes, batch_size=64, gamma=.94):
             replay_buffer.add(Transition(s=state, a=action, r=reward, next_s=new_state, t=t_to_buffer))
             state = new_state
             ep_reward += reward
+
+            print("Episod: {0},\tEpoch: {1}".format(i, replay_buffer.buffer_length))
+            print("Time since start: {0}".format(datetime.now()-starttime))
+            print("Action: {0},\tColliding: {1}".format(env.agent.actionList[action], env.agent.colliding))
+            print("ep_reward: {0:.1f},\tReward: {1:.1f}".format(ep_reward, reward))
+            print("x: {0:.1f},\ty: {1:.1f}".format(env.agent.x, env.agent.y))
+            print()
 
             # if buffer contains more than 1000 samples, perform one training step
             if replay_buffer.buffer_length > 1000:
