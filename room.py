@@ -21,6 +21,8 @@ class Agent:
         self.yaw = 0
         self.velocity = 0
 
+        self.maxSteeringAngle = 30
+
     def move_bm(self, actions, obstacles, goal):
         # Bicycle model
         # Input to movement is steering wheel angle and the velocity of the vehicle.
@@ -41,8 +43,7 @@ class Agent:
         old_velocity = self.velocity
 
         # Truncate steer wheel angle at a certain degree
-        truncate_value = 30
-        steer_wheel_angle = math.radians(max(-truncate_value, min(truncate_value, steer_wheel_angle)))
+        steer_wheel_angle = math.radians(max(-self.maxSteeringAngle, min(self.maxSteeringAngle, steer_wheel_angle)))
 
         # Update states
         velocity_angle = math.atan(self.length_rear * math.tan(steer_wheel_angle)/(self.length_rear + self.length_front))
@@ -196,9 +197,9 @@ class Room:
         if action_index == 0:
             self.action[0] = 0
         elif action_index == 1:
-            self.action[0] = 45
+            self.action[0] = self.agent.maxSteeringAngle
         elif action_index == 2:
-            self.action[0] = -45
+            self.action[0] = -self.agent.maxSteeringAngle
         elif action_index == 3:
             self.action[1] = 0
         elif action_index == 4:
@@ -240,9 +241,9 @@ class Room:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RIGHT:
-                        self.action[0] = 45
+                        self.action[0] = self.agent.maxSteeringAngle
                     if event.key == pygame.K_LEFT:
-                        self.action[0] = -45
+                        self.action[0] = -self.agent.maxSteeringAngle
                     if event.key == pygame.K_f:
                         self.action[0] = 0
                     if event.key == pygame.K_DOWN:
