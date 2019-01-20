@@ -6,6 +6,7 @@ import random as rnd
 from enum import Enum
 import math
 
+
 class Agent:
     def __init__(self):
         self.x = 200
@@ -20,6 +21,10 @@ class Agent:
         self.sampleTime = 0.1
         self.yaw = 0
         self.velocity = 0
+        self.colliding = False
+
+        self.actionList = ["Steer forward", "Steer left","Steer right",
+                           "No acceleration", "Positive acceleration", "Negative acceleration"]
 
     def move_bm(self, actions, obstacles, goal):
         # Bicycle model
